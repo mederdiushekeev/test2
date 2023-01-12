@@ -12,7 +12,8 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContextProvider";
 
 const pages = [
   { name: "Home", link: "/", id: 1 },
@@ -24,6 +25,14 @@ const pages = [
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function Navbar() {
+  const {
+    handleLogout,
+    user: { email },
+  } = useAuth();
+
+  let navigate = useNavigate();
+
+  console.log(email);
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -175,11 +184,20 @@ function Navbar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem onClick={handleCloseUserMenu}>
+                {email ? (
+                  <Typography onClick={handleLogout} textAlign="center">
+                    Log Out
+                  </Typography>
+                ) : (
+                  <Typography
+                    onClick={() => navigate("/auth")}
+                    textAlign="center"
+                  >
+                    Log In
+                  </Typography>
+                )}
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
