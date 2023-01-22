@@ -1,5 +1,7 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContextProvider";
+import { ADMIN } from "../helpers/consts";
 import AboutUsPage from "../pages/AboutUsPage";
 import AdminPage from "../pages/AdminPage";
 import AuthPage from "../pages/AuthPage";
@@ -12,6 +14,8 @@ import ProductDetailsPage from "../pages/ProductDetailsPage";
 import ProductsPage from "../pages/ProductsPage";
 
 const MainRoutes = () => {
+  const { user } = useAuth();
+
   const PUBLIC_ROUTES = [
     {
       link: "/products",
@@ -53,6 +57,9 @@ const MainRoutes = () => {
       element: <AboutUsPage />,
       id: 8,
     },
+  ];
+
+  const PRIVATE_ROUTES = [
     {
       link: "/admin",
       element: <AdminPage />,
@@ -71,6 +78,22 @@ const MainRoutes = () => {
         {PUBLIC_ROUTES.map((item) => (
           <Route path={item.link} element={item.element} key={item.id} />
         ))}
+
+        {user
+          ? PRIVATE_ROUTES.map((item) => (
+              <Route
+                path={item.link}
+                element={
+                  user.email === ADMIN ? (
+                    item.element
+                  ) : (
+                    <Navigate replace to="*" />
+                  )
+                }
+                key={item.id}
+              />
+            ))
+          : null}
       </Routes>
     </>
   );

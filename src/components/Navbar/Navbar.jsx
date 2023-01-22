@@ -14,13 +14,18 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContextProvider";
+import { ADMIN, icon } from "../../helpers/consts";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { Badge } from "@mui/material";
+import { useCart } from "../../contexts/CartContextProvider";
+import { getCountProductsInCart } from "../../helpers/functions";
 
 const pages = [
   { name: "Home", link: "/", id: 1 },
   { name: "Our Partners", link: "/partners", id: 2 },
   { name: "Products", link: "/products", id: 3 },
   { name: "About Us", link: "/about", id: 4 },
-  { name: "Admin", link: "/admin", id: 5 },
+  // { name: "Admin", link: "/admin", id: 5 },
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -31,6 +36,14 @@ function Navbar() {
   } = useAuth();
 
   let navigate = useNavigate();
+
+  const [count, setCount] = React.useState(0);
+
+  const { addProductToCart } = useCart();
+
+  React.useEffect(() => {
+    setCount(getCountProductsInCart);
+  }, [addProductToCart]);
 
   console.log(email);
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -119,6 +132,14 @@ function Navbar() {
                   </Link>
                 </MenuItem>
               ))}
+
+              {email === ADMIN ? (
+                <MenuItem onClick={handleCloseNavMenu}>
+                  <Link to="/admin">
+                    <Typography textAlign="center">ADMIN</Typography>
+                  </Link>
+                </MenuItem>
+              ) : null}
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
@@ -140,14 +161,20 @@ function Navbar() {
           >
             LOGO
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+              justifyContent: "space-evenly",
+            }}
+          >
             {pages.map((page) => (
               <Link
+                to={page.link}
                 style={{
                   textDecoration: "none",
                 }}
                 key={page.id}
-                to={page.link}
               >
                 <Button
                   onClick={handleCloseNavMenu}
@@ -157,15 +184,37 @@ function Navbar() {
                 </Button>
               </Link>
             ))}
+
+            {email === ADMIN ? (
+              <Link style={{ textDecoration: "none" }} to="/admin">
+                <Button
+                  onClick={handleCloseNavMenu}
+                  sx={{
+                    my: 2,
+                    color: "white",
+                    display: "block",
+                  }}
+                >
+                  admin
+                </Button>
+              </Link>
+            ) : null}
           </Box>
+
+          <Typography>{email ? `Hello , ${email}` : "Login please"}</Typography>
+
+          <Link to="/cart">
+            <Button>
+              <Badge color="error" badgeContent={count}>
+                <ShoppingCartIcon sx={{ color: "white" }} />
+              </Badge>
+            </Button>
+          </Link>
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar
-                  alt="Remy Sharp"
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq5d1g0Rgx3fxMzsWqdTg8tBFNguAn9MyzhQ&usqp=CAU"
-                />
+                <Avatar alt="Remy Sharp" src={icon} />
               </IconButton>
             </Tooltip>
             <Menu
